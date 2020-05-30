@@ -1,33 +1,35 @@
-
 # In[ ]:
-
-
 import pygame
-import math
-import sys
 import numpy as np
+import sys
+import math
 import time
-
 # In[ ]:
-
-
 st=time.clock()
-print("\t\t\nDijkstra's Algorithm\n")
 print("Enter initial node cordinates")
 xi=float(input("x =  "))
 yi=float(input("y =  "))
 init_node=[xi,yi]
-print("Enter goal node cordinates (max 230x144 )")
+print("Enter goal node cordinates (max 230x144)")
 xg=float(input("x =  "))
 yg=float(input("y =  "))
 goal=[xg,yg]
+sd=0
+scnd=0
 r=1
-sd=0;
 goal= [n / r for n in goal]
 init_node=[m / r for m in init_node]
-scnd=0
+
 rows=144/r
 coloums=230/r
+
+
+# In[ ]:
+
+
+def astar(node):
+    h = max ( abs(node[0] - goal[0]) ,abs(node[1] - goal[1]))
+    return h
 
 
 # In[ ]:
@@ -38,7 +40,6 @@ def left(current_node):
     next_node[0]=current_node[0]-1
     next_node[1]=current_node[1]
     cost=1
-    
     return next_node,cost
 
 def right(current_node):
@@ -46,7 +47,6 @@ def right(current_node):
     next_node[0]=current_node[0]+1
     next_node[1]=current_node[1]
     cost=1
-    
     return next_node,cost
 
 def down(current_node):
@@ -54,7 +54,6 @@ def down(current_node):
     next_node[0]=current_node[0]
     next_node[1]=current_node[1]+1
     cost=1
-        
     return next_node,cost
 
 def up(current_node):
@@ -62,7 +61,6 @@ def up(current_node):
     next_node[0]=current_node[0]
     next_node[1]=current_node[1]-1
     cost=1
-    
     return next_node,cost
 
 def down_left(current_node):
@@ -70,7 +68,6 @@ def down_left(current_node):
     next_node[0]=current_node[0]-1
     next_node[1]=current_node[1]+1
     cost=1.42
-    
     return next_node,cost
 
 def up_left(current_node):
@@ -78,7 +75,6 @@ def up_left(current_node):
     next_node[0]=current_node[0]-1
     next_node[1]=current_node[1]-1
     cost=1.42
-    
     return next_node,cost
                   
 def up_right(current_node):
@@ -86,7 +82,6 @@ def up_right(current_node):
     next_node[0]=current_node[0]+1
     next_node[1]=current_node[1]-1
     cost=1.42
-    
     return next_node,cost
                   
 def down_right(current_node):
@@ -94,8 +89,10 @@ def down_right(current_node):
     next_node[0]=current_node[0]+1
     next_node[1]=current_node[1]+1
     cost=1.42
-    
     return next_node,cost
+
+
+
 def obstacle_space(x,y,r):
     c = 0
     #big circle
@@ -119,25 +116,26 @@ def obstacle_space(x,y,r):
     #oval bottom
     if ((x-math.ceil(70/r))/math.ceil(19/r))**2 + ((y - math.ceil(39/r))/math.ceil(12/r))**2 - 1 <=0:
         c=1
-    
     return c
-    
-        
+
 
 p_nd=[init_node]
 c_nd=[init_node]
+h_nd=[round(astar(init_node),2)]
 vp_nd=[]
 visited_node=[]
 v_cst=[]
+vh_nd=[]
+
 if (obstacle_space(goal[0],goal[1],r)==1 or obstacle_space(init_node[0],init_node[1],r)):
-    sys.exit("Either goal node or start node lies inside obstacle ")
+    sys.exit("Either goal node or start node lies inside obstacle or outside the workspace")
 
 if (init_node[0] not in range(0,231) or goal[0] not in range(0,231) or init_node[1] not in range(0,145) or goal[1] not in range(0,145)):
     sys.exit("Entered node cordinates are not integers or outside the workspace or invalid resolution")
 
 
-
 # In[ ]:
+
 
 
 
@@ -145,10 +143,11 @@ x=0
 cst=[0]
 ndx=init_node
 flag=0
-
+exit=0
+count=0
 while(flag!=1):
     
-    #goes up
+    #North
     nd,cost=up(ndx)
     if (nd[1]>=0 and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -168,11 +167,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
                 scnd+=1
-        
- 
             
-    #to go down
+            
+    #South
     nd,cost=down(ndx)
     if (nd[1]<=rows and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -192,10 +191,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
                 scnd+=1
-
             
-    #to go left
+            
+    #West
     nd,cost=left(ndx)
     if (nd[0]>=0 and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -215,10 +215,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
                 scnd+=1
+            
 
-
-    #to go right
+    #East
     nd,cost=right(ndx)
     if (nd[0]<=coloums and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -238,10 +239,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
-                scnd+=1
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
+		scnd+=1
 
             
-    #north west
+    #North West
     nd,cost=up_left(ndx)
     if (nd[1]>=0 and nd[0]>=0 and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -261,10 +263,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
-                scnd+=1
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
+		scnd+=1
 
             
-    #north east
+    #North East
     nd,cost=up_right(ndx)
     if (nd[0]<=coloums and nd[1]>=0 and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -284,10 +287,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
 		scnd+=1
 
             
-    #south west
+    #South West
     nd,cost=down_left(ndx)
     if (nd[1]<=rows and nd[0]>=0 and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -307,10 +311,11 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
-                scnd+1
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
 
-                    
-    #south east
+
+            
+    #South East
     nd,cost=down_right(ndx)
     if (nd[1]<=rows and nd[0]<=coloums and obstacle_space(nd[0],nd[1],r)!=1):
         if nd not in visited_node:
@@ -330,22 +335,24 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
-                scnd+=1
+                h_nd.append(round((cost+cst[x]+astar(nd)),2))
+		scnd+=1
 
-        
-                    
+            
     vp_nd.append(p_nd.pop(x))
-    
     visited_node.append(c_nd.pop(x))
     v_cst.append(cst.pop(x))
+    vh_nd.append(h_nd.pop(x))
     
     
     if(visited_node[-1]==goal):
         flag=1
         
     if(flag!=1):
-        x=cst.index(min(cst))
+        x=h_nd.index(min(h_nd))
         ndx=c_nd[x][:]
+    
+
 
 seq=[]
 seq.append(visited_node[-1])
@@ -353,25 +360,22 @@ seq.append(vp_nd[-1])
 x=vp_nd[-1]
 i=1
 while(x!=init_node):
-   
     if(visited_node[-i]==x):
         seq.append(vp_nd[-i])
         x=vp_nd[-i]
-        sd=sd+1
-    i=i+1      
-
-
+        sd+=1
+    i=i+1     
+# In[ ]:
 # In[ ]:
 
 
 obs_space = []
 for i in range(0,231):
     for j in range(0,145):
-    	q=obstacle_space(i,j,r)
+        q=obstacle_space(i,j,r)
         if q == 1:
             obs_space.append([i,j])
-            
-            
+           
 
 k=2
 my_list = np.array(visited_node)
@@ -384,17 +388,17 @@ obs_space = my_list2*k*r
 
 pygame.init()
 
+#Defining the colors
 Black = [0, 0, 0]
 grey = [192, 192, 192]
 Blue = [0, 100, 255]
 White = [255, 255, 255]
 red= [200, 0, 0]
 
-#length and breadth
 SIZE = [230*k+r+r, 144*k+r+r]
 screen = pygame.display.set_mode(SIZE)
 
-pygame.display.set_caption("Dijkstra's algorithm")
+pygame.display.set_caption("A* algorithm")
 clock = pygame.time.Clock()
 done = False
 while not done:
@@ -403,18 +407,17 @@ while not done:
             done = True    
  
     screen.fill(White)
-#print the obstacles
+#Printing the obstacles
     for i in obs_space:
         pygame.draw.rect(screen, red, [i[0],144*k-i[1],r*k,r*k])
     pygame.display.flip()
     clock.tick(144)
-#print the visited nodes(shows how everything is getting scanned)
+#Printing the visited nodes
     for i in visited_node:
         pygame.time.wait(1)
-        
         pygame.draw.rect(screen, Black, [i[0],144*k-i[1],r*k,r*k])
         pygame.display.flip()
-#print the path
+#Printing the path
     for j in seq[::-1]:
         pygame.time.wait(1)
         pygame.draw.rect(screen, grey, [j[0], 144*k-j[1], r*k,r*k])
@@ -429,4 +432,4 @@ et=time.clock()
 tt=et-st
 print("Total distance moved is %d"%sd)
 print("Total area scanned is %d"%scnd)
-print('Total time taken by Dijkstras algorithm is %.4fs'%tt)
+print('Total time taken by A* algorithm is %.4fs'%tt)
