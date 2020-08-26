@@ -1,4 +1,3 @@
-
 # In[ ]:
 
 
@@ -22,7 +21,7 @@ xg=float(input("x =  "))
 yg=float(input("y =  "))
 goal=[xg,yg]
 r=1
-sd=0;
+sd=0
 goal= [n / r for n in goal]
 init_node=[m / r for m in init_node]
 scnd=0
@@ -103,7 +102,7 @@ def obstacle_space(x,y,r):
         c=1
     #rhombus    
     if (38*x- 7*y - 5830/r >= 0) and (38*x + 23*y - 8530/r <= 0) and (37*x -20*y -6101/r <= 0) and (37*x +10*y - 6551/r >= 0):
-   	c=1
+        c=1
     ##parallelogram
     if (2*x + 19*y - 2514/r <= 0) and (41*x+ 25*y -5300/r >= 0) and (y - 90/r>= 0) and (37*x +10*y - 5000/r <= 0):
         c=1
@@ -284,7 +283,7 @@ while(flag!=1):
                 p_nd.append(ndx)
                 c_nd.append(nd)
                 cst.append(round((cost+cst[x]),1))
-		scnd+=1
+                scnd+=1
 
             
     #south west
@@ -363,11 +362,10 @@ while(x!=init_node):
 
 # In[ ]:
 
-
 obs_space = []
 for i in range(0,231):
     for j in range(0,145):
-    	q=obstacle_space(i,j,r)
+        q=obstacle_space(i,j,r)
         if q == 1:
             obs_space.append([i,j])
             
